@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 let express = require('express');
 let path = require('path');
 let favicon = require('serve-favicon');
@@ -7,6 +9,9 @@ let bodyParser = require('body-parser');
 
 let index = require('./routes/index');
 let users = require('./routes/users');
+
+//wczytaj dotenv -> funkcje config
+const debug = require('debug')('app.js');
 
 let app = express();
 
@@ -40,4 +45,8 @@ app.use(function(err, req, res, next) {
     res.send({status, message: err.message})
 });
 
+debug('process.env', {
+    mongodb_uri: process.env.MONGODB_URI,
+    team_name: process.env.TEAM_NAME
+});
 module.exports = app;
