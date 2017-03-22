@@ -20,16 +20,18 @@ router.post('/', function (req, res, next) {
         , userView = new UserView(req.body)
     ;
     let message;
+    let status;
     userView.save(function (err) {
         if (err) {
-            message = err.message;
+            message = 'Something went wrong';
+            status = 422;
+            console.log(`Error: ${err.message}`);
         } else {
             message = 'User created';
+            status = 201;
         }
-        const status = 201;
+
         res.status(status);
-
-
         res.send({status, message})
     });
 
