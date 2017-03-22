@@ -10,7 +10,7 @@ const app = require('../app/auth_app.js')
     , MongoDb = require('../lib/mongo_db')
     , mongoDb = new MongoDb({connectionUri: process.env.MONGODB_URI, modelDir: `../models`})
 
-    , port = parseInt(process.env.PORT || '3000', 10)
+    , port = parseInt(process.env.PORT || '4000', 10)
     , server = http.createServer(app)
 ;
 
