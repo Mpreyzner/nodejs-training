@@ -20,23 +20,38 @@ router.post('/', function (req, res, next) {
         , userView = new UserView(req.body)
     ;
 
+    let duplicateKeyError = db.ERR_CODES.DUPLICATE_KEY_ERROR;
+    let errors = {
+        default: {
+            http_code: 500,
+            message: 'Something went wrong'
+        }
+    };
+
+    errors[duplicateKeyError] = {
+        http_code: 422,
+        message: 'Account with given email already exist'
+    };
+
+    console.log(errors);
     userView.save(function (err) {
         let message;
         let status;
+        let currentError;
+
+
         if (err) {
-            if (err.code === 11000) {
-                message = 'Account with given email already exist';
-                status = 422;
+            if (errors.hasOwnProperty(err.code)) {
+                currentError = errors[err.code];
             } else {
-                message = 'Something went wrong';
-                status = 500;
+                currentError = 'default';
             }
-            console.log(`Error: ${err.message}`);
+            message = currentError.message;
+            status = currentError.http_code;
         } else {
             message = 'User created';
             status = 201;
         }
-
         res.status(status);
         res.send({status, message})
     });
