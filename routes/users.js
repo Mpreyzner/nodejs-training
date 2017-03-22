@@ -33,7 +33,6 @@ router.post('/', function (req, res, next) {
         message: 'Account with given email already exist'
     };
 
-    console.log(errors);
     userView.save(function (err) {
         let message;
         let status;
