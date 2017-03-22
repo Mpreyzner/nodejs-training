@@ -7,8 +7,10 @@ const mongoose = require('mongoose')
     {
         username: {type: String, required: true, unique: true},
         password: {type: String, required: true},
+        createdAt: {type: Date},
+        updatedAt: {type: Date}
     },
-    {collection: `user_view`}
+    {collection: `user_auth`}
 );
 
 schema.pre('save', function (next) {
@@ -24,5 +26,5 @@ schema.pre('save', function (next) {
     next();
 });
 
-module.exports = mongoose.model('UserView', schema);
+module.exports = mongoose.model('UserAuth', schema);
 
