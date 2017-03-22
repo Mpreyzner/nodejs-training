@@ -19,12 +19,18 @@ router.post('/', function (req, res, next) {
         , UserView = db.getModel('user_view')
         , userView = new UserView(req.body)
     ;
-    let message;
-    let status;
+
     userView.save(function (err) {
+        let message;
+        let status;
         if (err) {
-            message = 'Something went wrong';
-            status = 422;
+            if (err.code === 11000) {
+                message = 'Account with given email already exist';
+                status = 422;
+            } else {
+                message = 'Something went wrong';
+                status = 500;
+            }
             console.log(`Error: ${err.message}`);
         } else {
             message = 'User created';
@@ -34,6 +40,7 @@ router.post('/', function (req, res, next) {
         res.status(status);
         res.send({status, message})
     });
+
 
     // status: status equals to status
 });
