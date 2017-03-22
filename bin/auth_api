@@ -2,7 +2,7 @@
 
 'use strict';
 
-const app = require('../app/user_app.js')
+const app = require('../app/auth_app.js')
     , debug = require('debug')('intern2-node-register-kornel:server')
     , http = require('http')
     , async = require('async')
