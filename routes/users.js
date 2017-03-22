@@ -1,10 +1,11 @@
 let express = require('express');
 let router = express.Router();
+let async = require('async');
+let request = require('request');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
 
-    //  res.send('respond with a resource');
     const status = 201;
     res.status(status);
     res.message('User created');
@@ -12,7 +13,7 @@ router.get('/', function(req, res, next) {
     res.send({status, message: res.message})
 });
 
-router.post('/', function (req, res, next) {
+router.post('/', function (req, res, n) {
 
 
     const db = req.app.get('db')
@@ -33,26 +34,72 @@ router.post('/', function (req, res, next) {
         message: 'Account with given email already exist'
     };
 
-    userView.save(function (err) {
-        let message;
-        let status;
-        let currentError;
+    async.waterfall([
+        (next) => {
+            userView.save(function (err) {
+                let message;
+                let status;
+                let currentError;
+
+                if (err) {
+                    if (errors.hasOwnProperty(err.code)) {
+                        currentError = errors[err.code];
+                    } else {
+                        currentError = 'default';
+                    }
+                    message = currentError.message;
+                    status = currentError.http_code;
+                    console.error(err);
+                    return next(err);
+                } else {
+                    next();
+                }
+            });
+        },
+
+        (next) => {
+            let password = req.body.password;
+            let body = {
+                username: userView.email,
+                password
+            };
+
+            let uri = process.env.AUTH_SERVICE_URL + '/auth';
+            let opts = {
+                method: 'POST',
+                uri,
+                json: body
+            };
+
+            request(opts, (err, res, body) => {
+                if (err) {
+                    console.error(err);
+                    return next(err);
+                }
+                let statusCode = res.statusCode;
+
+                if (statusCode === 204) {
+                    message = 'User created';
+                    status = 201;
+                } else {
+                    message = 'oops something went wrong';
+                    status = 422;
+                }
+
+                next();
+            });
 
 
+        }
+
+    ], (err) => {
         if (err) {
-            if (errors.hasOwnProperty(err.code)) {
-                currentError = errors[err.code];
-            } else {
-                currentError = 'default';
-            }
-            message = currentError.message;
-            status = currentError.http_code;
-        } else {
-            message = 'User created';
-            status = 201;
+            message = err.message;
+            status = 500;
+            process.exit(1);
         }
         res.status(status);
-        res.send({status, message})
+        res.send({status, message});
     });
 
 

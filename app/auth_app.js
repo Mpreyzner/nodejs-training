@@ -36,5 +36,6 @@ app.use(function (err, req, res, next) {
 debug('process.env', {
     mongodb_uri: process.env.MONGODB_URI,
     team_name: process.env.TEAM_NAME
+
 });
 module.exports = app;
