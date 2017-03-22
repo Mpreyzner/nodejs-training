@@ -15,22 +15,36 @@ router.post('/', function (req, res, next) {
 
         let status;
         let currentError;
-        
+        let duplicateKeyError = db.ERR_CODES.DUPLICATE_KEY_ERROR;
+        let errors = {
+            default: {
+                http_code: 500,
+                //  message: 'Something went wrong'
+            }
+        };
+
+        errors[duplicateKeyError] = {
+            http_code: 422,
+            // message: 'Account with given email already exist'
+        };
+
         if (err) {
-            // if (errors.hasOwnProperty(err.code)) {
-            //     currentError = errors[err.code];
-            // } else {
-            //     currentError = 'default';
-            // }
-            // //message = currentError.message;
-            // status = currentError.http_code;
-            status = 500;
+            if (errors.hasOwnProperty(err.code)) {
+
+                status = 422;
+                status = errors[err.code].http_code;
+            } else {
+                status = 500;
+
+            }
+
         } else {
             // message = 'User created';
             status = 204;
         }
         res.status(status);
         res.send();
+        // db.
     });
 
     // const status = 204;
