@@ -1,5 +1,7 @@
 let express = require('express');
 let router = express.Router();
+let bcrypt = require('bcryptjs');
+let async = require('async');
 
 router.post('/', function (req, res, next) {
 
@@ -11,45 +13,61 @@ router.post('/', function (req, res, next) {
 
     let errors = {};
 
-    userAuth.save(function (err) {
+    async.waterfall([
+        (next) => {
+            bcrypt.hash(userAuth.password, 10, (err, hashedPassword) => {
+                if (err) {
+                    console.log(err.message);
+                    return next(err);
+                }
+                userAuth.password = hashedPassword;
+                return next();
+            });
+        },
 
-        let status;
-        let currentError;
-        let duplicateKeyError = db.ERR_CODES.DUPLICATE_KEY_ERROR;
-        let errors = {
-            default: {
-                http_code: 500,
-                //  message: 'Something went wrong'
-            }
-        };
+        (next) => {
+            userAuth.save(function (err) {
+                userAuth.password = bcrypt.hash(userAuth.password, 10, (err, hashedPassword) => {
+                        userAuth.password = hashedPassword;
 
-        errors[duplicateKeyError] = {
-            http_code: 422,
-            // message: 'Account with given email already exist'
-        };
+                    }, function (next) {
+                        console.log(userAuth);
+                        next();
+                    }
+                );
+                let status;
+                let duplicateKeyError = db.ERR_CODES.DUPLICATE_KEY_ERROR;
+                let errors = {
+                    default: {
+                        http_code: 500,
+                    }
+                };
 
-        if (err) {
-            if (errors.hasOwnProperty(err.code)) {
+                errors[duplicateKeyError] = {
+                    http_code: 422,
+                };
 
-                status = 422;
-                status = errors[err.code].http_code;
-            } else {
-                status = 500;
-
-            }
-
-        } else {
-            // message = 'User created';
-            status = 204;
+                if (err) {
+                    console.log(err);
+                    if (errors.hasOwnProperty(err.code)) {
+                        status = errors[err.code].http_code;
+                    } else {
+                        status = 500;
+                    }
+                } else {
+                    status = 204;
+                }
+                res.status(status);
+                res.send();
+            });
         }
-        res.status(status);
-        res.send();
-        // db.
+
+    ], (err) => {
+        if (err) {
+            process.exit(1);
+        }
     });
 
-    // const status = 204;
-    // res.status(status);
-    // res.send();
 
 });
 
