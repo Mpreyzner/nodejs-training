@@ -15,9 +15,9 @@ router.post('/', function (req, res, next) {
 
     const status = 201;
     res.status(status);
-    res.message('User created');
+    const message = 'User created';
 
-    res.send({status, message: res.message})
+    res.send({status, message})
     // status: status equals to status
 });
 module.exports = router;
