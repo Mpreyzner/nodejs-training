@@ -45,6 +45,7 @@ app.use(function (err, req, res, next) {
 
 debug('process.env', {
     mongodb_uri: process.env.MONGODB_URI,
-    team_name: process.env.TEAM_NAME
+    team_name: process.env.TEAM_NAME,
+    rabbitmq_uri: process.env.RABBITMQ_URI
 });
 module.exports = app;

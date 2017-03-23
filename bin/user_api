@@ -12,11 +12,18 @@ const app = require('../app/user_app.js')
 
     , port = parseInt(process.env.PORT || '3000', 10)
     , server = http.createServer(app)
+    , RabbitMq = require('../lib/rabbit_mq.js')
+    , rabbitmq = new RabbitMq({connectionUri: process.env.RABBITMQ_URI})
 ;
 
+
+/*
+ *      * @param {string} config.connectionUri
+ * @param {object} config.options
+ * @param {object} config.options.heartbeat co to jes hearthbeat ??
+ * */
 app.set('port', port);
 
-// req.app.get('db') - @ routes
 app.set('db', mongoDb);
 
 async.waterfall([
@@ -25,6 +32,18 @@ async.waterfall([
         mongoDb.init((err) => {
             if (err) {
                 console.error(`MongoDb initialization error: ${err.message}`);
+                return next(err);
+            }
+
+            next(null);
+        });
+    },
+
+    (next) => {
+        // INIT RABBIT CONNECTION
+        rabbitmq.init((err) => {
+            if (err) {
+                console.error(`rabbitMq initialization error: ${err.message}`);
                 return next(err);
             }
 

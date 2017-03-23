@@ -16,7 +16,6 @@ const app = require('../app/auth_app.js')
 
 app.set('port', port);
 
-// req.app.get('db') - @ routes
 app.set('db', mongoDb);
 
 async.waterfall([
