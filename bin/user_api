@@ -20,7 +20,6 @@ const app = require('../app/user_app.js')
 
 app.set('port', port);
 app.set('db', mongoDb);
-app.set('rabbitMq', rabbitMq);
 
 const nodemailer = require('nodemailer');
 let smtpuri = process.env.SMTP_URI;
@@ -61,21 +60,16 @@ async.waterfall([
                 type: 'topic'
             }
         };
-        let publisher = rabbitMq.getPublisher(params, next);
-        next(publisher);
-
-    },
-    (publisher, next) => {
-        publisher.publish(
-            'user_registration_event',
-            _.pick(req.body, ['email', 'firstname', 'lastname']), {
-                deliveryMode: 2,
-                mandatory: true
-            }, (err) => {
+        rabbitMq.getPublisher(params, (err, publisher) => {
+            if (err) {
+                console.error(log);
                 return next(err);
-            });
-    },
+            }
+            app.set('publisher', publisher);
+            next();
 
+        });
+    },
     // INIT HTTP SERVER
     (next) => {
         server.listen(port);

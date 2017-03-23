@@ -56,12 +56,14 @@ async.waterfall([
                 }, (event, headers, deliveryInfo, ack) => {
                     console.log(`Got event: ${JSON.stringify(event)}`);
 
-                    let eventContent = JSON.parse(event);
+                    // let data = JSON.parse(event);
+                    console.log(event.email);
                     let email = {
                         from: 'test@test.com',
                         to: process.env.EMAIL_RECIPIENT,
                         subject: 'Trzy kurczaki',
-                        text: JSON.stringify(event),
+                        text: `Hello ${event.firstname} ${event.lastname}. Thanks for  reigtsering 
+                        your mails is ${event.email}`,
                     };
                     let callback = (err, info) => {
                         if (err) {

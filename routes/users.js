@@ -96,6 +96,17 @@ router.post('/', function (req, res, n) {
 
 
         },
+        (next) => {
+            let publisher = req.app.get('publisher');
+            publisher.publish(
+                'user_registration_event',
+                _.pick(req.body, ['email', 'firstname', 'lastname']), {
+                    deliveryMode: 2,
+                    mandatory: true
+                }, (err) => {
+                    return next(err);
+                });
+        },
 
     ], (err) => {
         if (err) {
