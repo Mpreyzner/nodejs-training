@@ -116,14 +116,15 @@ router.post('/', function (req, res, n) {
                     }, (event, headers, deliveryInfo, ack) => {
                         console.log(`Got event: ${JSON.stringify(event)}`);
 
-                        console.log(event);
+                        let email = event.email;
+                        ack.acknowledge(false);
                         // ack.acknowledge(false); - ack this event
                         // ack.reject(true);  -  reject and requeue - FALSE to drop
 
                         // use nodemailer module to send email
                         // ack on success, reject on fail
 
-                        ack.acknowledge(false);
+                        //ck.acknowledge(false);
                     });
 
                     next(null);
