@@ -58,16 +58,14 @@ async.waterfall([
         const params = {
             exchange: {
                 name: `ex-events-${_.snakeCase(process.env.TEAM_NAME)}`,
-                    type: 'topic'
+                type: 'topic'
             }
         };
-        let callback = (err) => {
-            console.log(err);
-        };
-        console.log(params);
-        let publisher = rabbitMq.getPublisher(params, callback);
-        console.log(publisher);
+        let publisher = rabbitMq.getPublisher(params, next);
+        next(publisher);
 
+    },
+    (publisher, next) => {
         publisher.publish(
             'user_registration_event',
             _.pick(req.body, ['email', 'firstname', 'lastname']), {
@@ -76,10 +74,6 @@ async.waterfall([
             }, (err) => {
                 return next(err);
             });
-
-
-        next();
-
     },
 
     // INIT HTTP SERVER

@@ -96,19 +96,6 @@ router.post('/', function (req, res, n) {
 
 
         },
-        // (next) => {
-        //     // publisher.publish(
-        //     //     'user_registration_event',
-        //     //     _.pick(req.body, ['email', 'firstname', 'lastname']), {
-        //     //         deliveryMode: 2,
-        //     //         mandatory: true
-        //     //     }, (err) => {
-        //     //         if (err) {
-        //     //             return next(err);
-        //     //         }
-        //     //         next(null);
-        //     //     });
-        // }
 
     ], (err) => {
         if (err) {
