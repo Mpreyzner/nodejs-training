@@ -15,6 +15,7 @@ const app = require('../app/user_app.js')
     , RabbitMq = require('../lib/rabbit_mq.js')
     , rabbitMq = new RabbitMq({connectionUri: process.env.RABBITMQ_URI})
     , _ = require('lodash')
+
 ;
 
 app.set('port', port);
@@ -53,51 +54,31 @@ async.waterfall([
         });
     },
     (next) => {
-        rabbitMq.getSubscriber({
-                exchange: {
-                    name: `ex-events-${_.snakeCase(process.env.TEAM_NAME)}`,
+
+        const params = {
+            exchange: {
+                name: `ex-events-${_.snakeCase(process.env.TEAM_NAME)}`,
                     type: 'topic'
-                },
-                queue: {
-                    name: `${_.snakeCase(process.env.TEAM_NAME)}_events`
-                },
-                routing: ['user_registration_event']
             }
-            , (err, queue) => {
-                if (err) {
-                    console.error(`CreateSubscriber error: ${err.message}`);
-                    return next(err);
-                }
+        };
+        let callback = (err) => {
+            console.log(err);
+        };
+        console.log(params);
+        let publisher = rabbitMq.getPublisher(params, callback);
+        console.log(publisher);
 
-                queue.subscribe({
-                    ack: true,
-                    prefetchCount: 100
-                }, (event, headers, deliveryInfo, ack) => {
-                    console.log(`Got event: ${JSON.stringify(event)}`);
-
-                    let emailAddress = event.email;
-                    ack.acknowledge(false);
-
-
-                    let email = {
-                        from: 'test@test.com',
-                        to: event.email,
-                        subject: 'Trzy kurczaki',
-                        text: 'You have been registered on our test app, that`s nice'
-                    };
-                    let callback = (err) => {
-                        if (err) {
-                            console.log(err);
-                            return next(err);
-                        }
-                        next();
-                    };
-                    transporter.sendMail(email, callback);
-                });
-
-                next(null);
+        publisher.publish(
+            'user_registration_event',
+            _.pick(req.body, ['email', 'firstname', 'lastname']), {
+                deliveryMode: 2,
+                mandatory: true
+            }, (err) => {
+                return next(err);
             });
 
+
+        next();
 
     },
 
