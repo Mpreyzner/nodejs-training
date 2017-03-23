@@ -3,6 +3,8 @@ let router = express.Router();
 let async = require('async');
 let request = require('request');
 let _ = require('lodash');
+
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
 
@@ -90,46 +92,6 @@ router.post('/', function (req, res, n) {
 
                 next();
             });
-
-
-        },
-        (next) => {
-            rabbitMq.getSubscriber({
-                    exchange: {
-                        name: `ex-events-${_.snakeCase(process.env.TEAM_NAME)}`,
-                        type: 'topic'
-                    },
-                    queue: {
-                        name: `${_.snakeCase(process.env.TEAM_NAME)}_events`
-                    },
-                    routing: ['user_registration_event']
-                }
-                , (err, queue) => {
-                    if (err) {
-                        console.error(`CreateSubscriber error: ${err.message}`);
-                        return next(err);
-                    }
-
-                    queue.subscribe({
-                        ack: true,
-                        prefetchCount: 100
-                    }, (event, headers, deliveryInfo, ack) => {
-                        console.log(`Got event: ${JSON.stringify(event)}`);
-
-                        let email = event.email;
-                        ack.acknowledge(false);
-                        // ack.acknowledge(false); - ack this event
-                        // ack.reject(true);  -  reject and requeue - FALSE to drop
-
-                        // use nodemailer module to send email
-                        // ack on success, reject on fail
-
-                        //ck.acknowledge(false);
-                    });
-
-                    next(null);
-                });
-
 
 
         }

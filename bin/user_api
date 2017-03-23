@@ -14,11 +14,19 @@ const app = require('../app/user_app.js')
     , server = http.createServer(app)
     , RabbitMq = require('../lib/rabbit_mq.js')
     , rabbitMq = new RabbitMq({connectionUri: process.env.RABBITMQ_URI})
+    , _ = require('lodash')
 ;
 
 app.set('port', port);
 app.set('db', mongoDb);
 app.set('rabbitMq', rabbitMq);
+
+const nodemailer = require('nodemailer');
+let smtpuri = process.env.SMTP_URI;
+let options = {service: smtpuri};
+let defaults = {};
+
+let transporter = nodemailer.createTransport(options, defaults);
 
 async.waterfall([
     // INIT MONGODB CONNECTION
@@ -43,6 +51,54 @@ async.waterfall([
 
             next(null);
         });
+    },
+    (next) => {
+        rabbitMq.getSubscriber({
+                exchange: {
+                    name: `ex-events-${_.snakeCase(process.env.TEAM_NAME)}`,
+                    type: 'topic'
+                },
+                queue: {
+                    name: `${_.snakeCase(process.env.TEAM_NAME)}_events`
+                },
+                routing: ['user_registration_event']
+            }
+            , (err, queue) => {
+                if (err) {
+                    console.error(`CreateSubscriber error: ${err.message}`);
+                    return next(err);
+                }
+
+                queue.subscribe({
+                    ack: true,
+                    prefetchCount: 100
+                }, (event, headers, deliveryInfo, ack) => {
+                    console.log(`Got event: ${JSON.stringify(event)}`);
+
+                    let emailAddress = event.email;
+                    ack.acknowledge(false);
+
+
+                    let email = {
+                        from: 'test@test.com',
+                        to: event.email,
+                        subject: 'Trzy kurczaki',
+                        text: 'You have been registered on our test app, that`s nice'
+                    };
+                    let callback = (err) => {
+                        if (err) {
+                            console.log(err);
+                            return next(err);
+                        }
+                        next();
+                    };
+                    transporter.sendMail(email, callback);
+                });
+
+                next(null);
+            });
+
+
     },
 
     // INIT HTTP SERVER
