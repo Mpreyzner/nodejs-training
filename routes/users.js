@@ -3,9 +3,7 @@ const express = require('express')
     , async = require('async')
     , request = require('request')
     , _ = require('lodash')
-    , Publisher = require('../lib/rabbit_mq/publisher.js')
 ;
-
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -24,8 +22,6 @@ router.post('/', function (req, res, n) {
         , UserView = db.getModel('user_view')
         , userView = new UserView(req.body)
     ;
-
-    const rabbitMq = req.app.get('rabbitMq');
 
     let duplicateKeyError = db.ERR_CODES.DUPLICATE_KEY_ERROR;
     let errors = {
@@ -53,7 +49,6 @@ router.post('/', function (req, res, n) {
                     } else {
                         currentError = 'default';
                     }
-                    message = currentError.message;
                     status = currentError.http_code;
                     console.error(err);
                     return next(err);
@@ -82,6 +77,7 @@ router.post('/', function (req, res, n) {
                     console.error(err);
                     return next(err);
                 }
+                let message, status;
                 let statusCode = res.statusCode;
 
                 if (statusCode === 204) {
@@ -111,6 +107,7 @@ router.post('/', function (req, res, n) {
 
     ], (err) => {
         if (err) {
+            let message, status;
             message = err.message;
             status = 500;
             process.exit(1);

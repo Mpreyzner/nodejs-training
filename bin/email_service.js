@@ -6,16 +6,13 @@ require('dotenv').config();
 
 const debug = require('debug')('intern2-node-register-kornel:server')
     , async = require('async')
-
     , RabbitMq = require('../lib/rabbit_mq.js')
     , rabbitMq = new RabbitMq({connectionUri: process.env.RABBITMQ_URI})
     , _ = require('lodash')
     , nodemailer = require('nodemailer')
-    , transporter = nodemailer.createTransport(smtpuri, {})
+    , transporter = nodemailer.createTransport(process.env.SMTP_URI, {})
 ;
 
-
-let smtpuri = process.env.SMTP_URI;
 
 async.waterfall([
     (next) => {
