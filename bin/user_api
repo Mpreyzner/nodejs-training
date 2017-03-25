@@ -15,18 +15,11 @@ const app = require('../app/user_app.js')
     , RabbitMq = require('../lib/rabbit_mq.js')
     , rabbitMq = new RabbitMq({connectionUri: process.env.RABBITMQ_URI})
     , _ = require('lodash')
-
+    , nodemailer = require('nodemailer')
 ;
 
 app.set('port', port);
 app.set('db', mongoDb);
-
-const nodemailer = require('nodemailer');
-let smtpuri = process.env.SMTP_URI;
-let options = {service: smtpuri};
-let defaults = {};
-
-let transporter = nodemailer.createTransport(options, defaults);
 
 async.waterfall([
     // INIT MONGODB CONNECTION
@@ -62,7 +55,7 @@ async.waterfall([
         };
         rabbitMq.getPublisher(params, (err, publisher) => {
             if (err) {
-                console.error(log);
+                console.error(`Failed to launch publisher: ${err.message}`);
                 return next(err);
             }
             app.set('publisher', publisher);

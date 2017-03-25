@@ -10,14 +10,16 @@ const debug = require('debug')('intern2-node-register-kornel:server')
     , RabbitMq = require('../lib/rabbit_mq.js')
     , rabbitMq = new RabbitMq({connectionUri: process.env.RABBITMQ_URI})
     , _ = require('lodash')
+    , nodemailer = require('nodemailer')
+    , transporter = nodemailer.createTransport(smtpuri, defaults)
 ;
 
-const nodemailer = require('nodemailer');
+
 let smtpuri = process.env.SMTP_URI;
 
 let defaults = {};
 
-const transporter = nodemailer.createTransport(smtpuri, defaults);
+const ;
 
 
 async.waterfall([
@@ -56,8 +58,6 @@ async.waterfall([
                 }, (event, headers, deliveryInfo, ack) => {
                     console.log(`Got event: ${JSON.stringify(event)}`);
 
-                    // let data = JSON.parse(event);
-                    console.log(event.email);
                     let email = {
                         from: 'test@test.com',
                         to: process.env.EMAIL_RECIPIENT,

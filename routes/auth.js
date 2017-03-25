@@ -1,7 +1,8 @@
-let express = require('express');
-let router = express.Router();
-let bcrypt = require('bcryptjs');
-let async = require('async');
+const express = require('express')
+    , router = express.Router()
+    , bcrypt = require('bcryptjs')
+    , async = require('async')
+;
 
 router.post('/', function (req, res, next) {
 

@@ -1,9 +1,10 @@
-let express = require('express');
-let router = express.Router();
-let async = require('async');
-let request = require('request');
-let _ = require('lodash');
-let Publisher = require('../lib/rabbit_mq/publisher.js');
+const express = require('express');
+    , router = express.Router()
+    , async = require('async')
+    , request = require('request')
+    , _ = require('lodash')
+    , Publisher = require('../lib/rabbit_mq/publisher.js')
+;
 
 
 /* GET users listing. */
