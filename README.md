@@ -5,3 +5,8 @@
 
 Small nodejs project with user registration and sending emails to registered users.
 Using microservices and rabbitmq.
+
+
+Todo:
+Add tests.
+Add proper error handling.
