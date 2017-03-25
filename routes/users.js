@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express')
     , router = express.Router()
     , async = require('async')
     , request = require('request')

@@ -11,16 +11,11 @@ const debug = require('debug')('intern2-node-register-kornel:server')
     , rabbitMq = new RabbitMq({connectionUri: process.env.RABBITMQ_URI})
     , _ = require('lodash')
     , nodemailer = require('nodemailer')
-    , transporter = nodemailer.createTransport(smtpuri, defaults)
+    , transporter = nodemailer.createTransport(smtpuri, {})
 ;
 
 
 let smtpuri = process.env.SMTP_URI;
-
-let defaults = {};
-
-const ;
-
 
 async.waterfall([
     (next) => {
